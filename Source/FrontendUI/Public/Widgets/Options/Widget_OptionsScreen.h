@@ -8,6 +8,7 @@
 
 class UOptionsDataRegistry;
 class UFrontend_TabListWidgetBase;
+class UFrontendCommonListView;
 
 /**
  * 
@@ -44,6 +45,9 @@ private:
 	//****** Bound Widgets *******//
 	UPROPERTY(meta = (BindWidget))
 	UFrontend_TabListWidgetBase* TabListWidget_OptionsTab;
+
+	UPROPERTY(meta = (BindWidget))
+	UFrontendCommonListView* CommonListView_OptionsList;
 	//****** Bound Widgets *******//
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Frontend Options Screen", meta = (RowType = "/Script/CommonUI.CommonInputActionDataBase"))

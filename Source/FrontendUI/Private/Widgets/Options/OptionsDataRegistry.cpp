@@ -3,23 +3,29 @@
 
 #include "Widgets/Options/OptionsDataRegistry.h"
 #include "Widgets/Options/DataObjects/ListDataObject_Collection.h"
+#include "Widgets/Options/DataObjects/ListDataObject_String.h"
 
 void UOptionsDataRegistry::InitOptionsDataRegistry(ULocalPlayer* InOwningLocalPlayer)
 {
-	InitGameCollectionTab();
 	InitGameplayCollectionTab();
 	InitAudioCollectionTab();
 	InitVideoCollectionTab();
 	InitControlCollectionTab();
 }
 
-void UOptionsDataRegistry::InitGameCollectionTab()
+TArray<UListDataObject_Base*> UOptionsDataRegistry::GetListSourceItemsByTabID(const FName& InSelectedTabID) const
 {
-	UListDataObject_Collection* GameTabCollection = NewObject<UListDataObject_Collection>();
-	GameTabCollection->SetDataID(FName("GameTabCollection"));
-	GameTabCollection->SetDataDisplayName(FText::FromString("Game"));
+	UListDataObject_Collection* const* FoundTabCollectionPtr = RegisteredOptionsTabCollections.FindByPredicate(
+		[InSelectedTabID](UListDataObject_Collection* AvailableTabCollection)->bool
+		{
+			return AvailableTabCollection->GetDataID() == InSelectedTabID;
+		}
+	);
 
-	RegisteredOptionsTabCollections.Add(GameTabCollection);
+	checkf(FoundTabCollectionPtr, TEXT("No valid tab found under the ID %s"), *InSelectedTabID.ToString());
+	UListDataObject_Collection* FoundTabCollection = *FoundTabCollectionPtr;
+
+	return FoundTabCollection->GetAllChildListData();
 }
 
 void UOptionsDataRegistry::InitGameplayCollectionTab()
@@ -27,6 +33,22 @@ void UOptionsDataRegistry::InitGameplayCollectionTab()
 	UListDataObject_Collection* GameplayTabCollection = NewObject<UListDataObject_Collection>();
 	GameplayTabCollection->SetDataID(FName("GameplayTabCollection"));
 	GameplayTabCollection->SetDataDisplayName(FText::FromString("Gameplay"));
+
+	//Game Difficulty
+	{
+		UListDataObject_String* GameDifficulty = NewObject<UListDataObject_String>();
+		GameDifficulty->SetDataID(FName("GameDifficulty"));
+		GameDifficulty->SetDataDisplayName(FText::FromString("Game Difficulty"));
+
+		GameplayTabCollection->AddChildListData(GameDifficulty);
+	}
+	//test item
+	// {
+	// UListDataObject_String* TestItem = NewObject<UListDataObject_String>();
+	// TestItem->SetDataID(FName("TestItem"));
+	// TestItem->SetDataDisplayName(FText::FromString("TestItem"));
+	// GameplayTabCollection->AddChildListData(TestItem);
+	// }
 
 	RegisteredOptionsTabCollections.Add(GameplayTabCollection);
 }

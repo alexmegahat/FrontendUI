@@ -67,12 +67,12 @@ void UOptionsDataRegistry::InitGameplayCollectionTab()
 		GameplayTabCollection->AddChildListData(GameDifficulty);
 	}
 	//test item
-	// {
-	// UListDataObject_String* TestItem = NewObject<UListDataObject_String>();
-	// TestItem->SetDataID(FName("TestItem"));
-	// TestItem->SetDataDisplayName(FText::FromString("TestItem"));
-	// GameplayTabCollection->AddChildListData(TestItem);
-	// }
+	{
+	UListDataObject_String* TestItem = NewObject<UListDataObject_String>();
+	TestItem->SetDataID(FName("TestItem"));
+	TestItem->SetDataDisplayName(FText::FromString("TestItem"));
+	GameplayTabCollection->AddChildListData(TestItem);
+	}
 
 	RegisteredOptionsTabCollections.Add(GameplayTabCollection);
 }

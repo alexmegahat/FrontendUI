@@ -33,9 +33,9 @@ void UListDataObject_String::AdvanceToNextOption()
 	//notify Game User Settings that we want to save this value
 	if (DataDynamicSetter)
 	{
-		Debug::Print(TEXT("DataDynamicSetter is used. The latest value from Getter: ") + DataDynamicGetter->GetValueAsString());
-		
 		DataDynamicSetter->SetValueAsString(CurrentStringValue);
+
+		Debug::Print(TEXT("DataDynamicSetter is used. The latest value from Getter: ") + DataDynamicGetter->GetValueAsString());
 		
 		NotifyListDataModified(this);
 	}

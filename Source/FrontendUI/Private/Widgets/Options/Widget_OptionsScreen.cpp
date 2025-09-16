@@ -10,6 +10,7 @@
 #include "Widgets/Components/Frontend_TabListWidgetBase.h"
 #include "Widgets/Options/DataObjects/ListDataObject_Collection.h"
 #include "Widgets/Components/FrontendCommonListView.h"
+#include "Widgets/Options/ListEntries/Widget_ListEntry_Base.h"
 
 void UWidget_OptionsScreen::NativeOnInitialized()
 {
@@ -34,6 +35,10 @@ void UWidget_OptionsScreen::NativeOnInitialized()
 	);
 	
 	TabListWidget_OptionsTab->OnTabSelected.AddUniqueDynamic(this, &ThisClass::OnOptionsTabSelected);
+	
+	//for telling whether the item was hovered(mouse)/selected(gamepad) or not
+	CommonListView_OptionsList->OnItemIsHoveredChanged().AddUObject(this, &ThisClass::OnListViewItemHovered);
+	CommonListView_OptionsList->OnItemSelectionChanged().AddUObject(this, &ThisClass::OnListViewItemSelected);
 }
 
 void UWidget_OptionsScreen::NativeOnActivated()
@@ -95,4 +100,21 @@ void UWidget_OptionsScreen::OnOptionsTabSelected(FName TabID)
 		CommonListView_OptionsList->NavigateToIndex(0);
 		CommonListView_OptionsList->SetSelectedIndex(0);
 	}
+}
+
+void UWidget_OptionsScreen::OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered)
+{
+	if (!InHoveredItem) return;
+
+	UWidget_ListEntry_Base* HoveredEntryWidget = CommonListView_OptionsList->GetEntryWidgetFromItem<UWidget_ListEntry_Base>(InHoveredItem);
+	check(HoveredEntryWidget);
+
+	HoveredEntryWidget->NativeOnListEntryWidgetHovered(bWasHovered);
+}
+
+void UWidget_OptionsScreen::OnListViewItemSelected(UObject* InSelectedItem)
+{
+	if (!InSelectedItem) return;
+
+	
 }

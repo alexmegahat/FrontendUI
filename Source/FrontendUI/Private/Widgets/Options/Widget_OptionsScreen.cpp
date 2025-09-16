@@ -2,11 +2,11 @@
 
 
 #include "Widgets/Options/Widget_OptionsScreen.h"
-#include "Widgets/Options/Widget_OptionsScreen.h"
 #include "Widgets/Options/OptionsDataRegistry.h"
 #include "ICommonInputModule.h"
 #include "Input/CommonUIInputTypes.h"
 #include "FrontendDebugHelper.h"
+#include "FrontendSettings/FrontendGameUserSettings.h"
 #include "Widgets/Components/Frontend_TabListWidgetBase.h"
 #include "Widgets/Options/DataObjects/ListDataObject_Collection.h"
 #include "Widgets/Components/FrontendCommonListView.h"
@@ -39,6 +39,7 @@ void UWidget_OptionsScreen::NativeOnInitialized()
 void UWidget_OptionsScreen::NativeOnActivated()
 {
 	Super::NativeOnActivated();
+	
 	for (UListDataObject_Collection* TabCollection : GetOrCreateOwningDataRegistry()->GetRegisteredOptionsTabCollections())
 	{
 		if (!TabCollection) continue;
@@ -50,6 +51,13 @@ void UWidget_OptionsScreen::NativeOnActivated()
 		TabListWidget_OptionsTab->RequestRegisterTab(TabID, TabCollection->GetDataDisplayName());
 	}
 	
+}
+
+void UWidget_OptionsScreen::NativeOnDeactivated()
+{
+	Super::NativeOnDeactivated();
+
+	UFrontendGameUserSettings::Get()->ApplySettings(true);
 }
 
 UOptionsDataRegistry* UWidget_OptionsScreen::GetOrCreateOwningDataRegistry()

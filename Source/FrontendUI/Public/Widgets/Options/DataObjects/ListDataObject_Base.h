@@ -39,6 +39,11 @@ public:
 
 	void SetShouldApplySettingsImmediately(bool bShouldApplyRightAway) {bShouldApplyChangeImmediatly = bShouldApplyRightAway;}
 
+	//Data Defaults - The child class should override those functions to provide implementations for resetting the data
+	virtual bool HasDefaultValue() const {return false;}
+	virtual bool CanResetBackToDefaultValue() const {return false;}
+	virtual bool TryResetBackToDefaultValue() {return false;}
+	
 protected:
 	//Empty in base class. The child classes should override it to handle the initialization needed for the child class
 	virtual void OnDataObjectInitialized();

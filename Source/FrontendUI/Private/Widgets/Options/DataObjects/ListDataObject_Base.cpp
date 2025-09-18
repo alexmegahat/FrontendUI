@@ -1,7 +1,6 @@
 // Aleksei Miakishev All Rights Reserved
 
 #include "Widgets/Options/DataObjects/ListDataObject_Base.h"
-
 #include "FrontendSettings/FrontendGameUserSettings.h"
 
 void UListDataObject_Base::InitDataObject()

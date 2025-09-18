@@ -2,7 +2,7 @@
 
 
 #include "Widgets/Options/ListEntries/Widget_ListEntry_String.h"
-
+#include "CommonInputSubsystem.h"
 #include "Widgets/Components/FrontendCommonButtonBase.h"
 #include "Widgets/Options/DataObjects/ListDataObject_String.h"
 #include "Widgets/Components/Frontend_CommonRotator.h"
@@ -18,6 +18,8 @@ void UWidget_ListEntry_String::NativeOnInitialized()
 
 	//every time common rotator is clicked -> select this entry widget
 	CommonRotator_AvailableOptions->OnClicked().AddLambda([this]() {SelectThisEntryWidget();});
+
+	CommonRotator_AvailableOptions->OnRotatedEvent.AddUObject(this, &ThisClass::OnRotatorValueChanged);
 }
 
 void UWidget_ListEntry_String::OnOwningListDataObjectSet(UListDataObject_Base* InOwningListDataObject)
@@ -57,4 +59,20 @@ void UWidget_ListEntry_String::OnNextOptionButtonClicked()
 		CachedOwningStringDataObject->AdvanceToNextOption();
 	}
 	SelectThisEntryWidget();
+}
+
+void UWidget_ListEntry_String::OnRotatorValueChanged(int32 Value, bool bUserInitiated)
+{
+	if (!CachedOwningStringDataObject) return;
+
+	UCommonInputSubsystem* CommonInputSubsystem = GetInputSubsystem();
+
+	if (!CommonInputSubsystem || !bUserInitiated) return;
+
+	//if with gamepad
+	if (CommonInputSubsystem->GetCurrentInputType() == ECommonInputType::Gamepad)
+	{
+		//Use the latest selected text of the common rotator to change values inside the data object
+		CachedOwningStringDataObject->OnRotatorInitiatedValueChange(CommonRotator_AvailableOptions->GetSelectedText());
+	}
 }

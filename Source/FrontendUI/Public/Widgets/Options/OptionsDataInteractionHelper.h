@@ -18,7 +18,7 @@ public:
 	FOptionsDataInteractionHelper(const FString& InSetterOrGetterFuncPath);
 
 	FString GetValueAsString() const;
-	void SetValueAsString(const FString& InStringValue);
+	void SetValueFromString(const FString& InStringValue);
 
 private:
 	FCachedPropertyPath CachedDynamicFunctionPath;

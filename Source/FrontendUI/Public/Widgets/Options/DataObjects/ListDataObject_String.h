@@ -19,9 +19,14 @@ public:
 	void AdvanceToNextOption();
 	void BackToPreviousOption();
 
+	void OnRotatorInitiatedValueChange(const FText& InNewSelectedText);
+
 protected:
 	//~Begin UListDataObject_Base Interface
 	virtual void OnDataObjectInitialized() override;
+	
+	virtual bool CanResetBackToDefaultValue() const override;
+	virtual bool TryResetBackToDefaultValue() override;
 	//~End UListDataObject_Base Interface
 
 	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);

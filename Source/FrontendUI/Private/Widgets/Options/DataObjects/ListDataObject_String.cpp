@@ -6,6 +6,35 @@
 #include "FrontendDebugHelper.h"
 #include "Widgets/Options/OptionsDataInteractionHelper.h"
 
+void UListDataObject_String::OnDataObjectInitialized()
+{
+	if (!AvailableOptionsStringArray.IsEmpty())
+	{
+		CurrentStringValue = AvailableOptionsStringArray[0];
+	}
+
+	if (HasDefaultValue())
+	{
+		CurrentStringValue = GetDefaultValueAsString();
+	}
+
+	//TODO:Read from the saved string value and use it to set current string value
+	if (DataDynamicGetter)
+	{
+		if (!DataDynamicGetter->GetValueAsString().IsEmpty())
+		{
+			CurrentStringValue = DataDynamicGetter->GetValueAsString();
+		}
+	}
+
+	// if could not find display text
+	if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
+	{
+		CurrentDisplayText = FText::FromString(TEXT("Invalid Option"));
+	}
+	
+}
+
 void UListDataObject_String::AddDynamicOption(const FString& InStringValue, const FText& InDisplayText)
 {
 	AvailableOptionsStringArray.Add(InStringValue);
@@ -33,7 +62,7 @@ void UListDataObject_String::AdvanceToNextOption()
 	//notify Game User Settings that we want to save this value
 	if (DataDynamicSetter)
 	{
-		DataDynamicSetter->SetValueAsString(CurrentStringValue);
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
 
 		Debug::Print(TEXT("DataDynamicSetter is used. The latest value from Getter: ") + DataDynamicGetter->GetValueAsString());
 		
@@ -63,7 +92,7 @@ void UListDataObject_String::BackToPreviousOption()
 	//notify Game User Settings that we want to save this value
 	if (DataDynamicSetter)
 	{
-		DataDynamicSetter->SetValueAsString(CurrentStringValue);
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
 
 		Debug::Print(TEXT("DataDynamicSetter is used. The latest value from Getter: ") + DataDynamicGetter->GetValueAsString());
 		
@@ -71,28 +100,47 @@ void UListDataObject_String::BackToPreviousOption()
 	}
 }
 
-void UListDataObject_String::OnDataObjectInitialized()
+void UListDataObject_String::OnRotatorInitiatedValueChange(const FText& InNewSelectedText)
 {
-	if (!AvailableOptionsStringArray.IsEmpty())
-	{
-		CurrentStringValue = AvailableOptionsStringArray[0];
-	}
-
-	//TODO:Read from the saved string value and use it to set current string value
-	if (DataDynamicGetter)
-	{
-		if (!DataDynamicGetter->GetValueAsString().IsEmpty())
+	const int32 FoundIndex = AvailableOptionsTextArray.IndexOfByPredicate(
+		[InNewSelectedText](const FText& AvailableText)->bool
 		{
-			CurrentStringValue = DataDynamicGetter->GetValueAsString();
+			return AvailableText.EqualTo(InNewSelectedText);
+		}
+	);
+	
+	if (FoundIndex != INDEX_NONE && AvailableOptionsStringArray.IsValidIndex(FoundIndex))
+	{
+		CurrentDisplayText = InNewSelectedText;
+		CurrentStringValue = AvailableOptionsStringArray[FoundIndex];
+		if (DataDynamicSetter)
+		{
+			DataDynamicSetter->SetValueFromString(CurrentStringValue);
+			NotifyListDataModified(this);
 		}
 	}
+}
 
-	// if could not find display text
-	if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
+bool UListDataObject_String::CanResetBackToDefaultValue() const
+{
+	return HasDefaultValue() && CurrentStringValue != GetDefaultValueAsString();
+}
+
+bool UListDataObject_String::TryResetBackToDefaultValue()
+{
+	if (CanResetBackToDefaultValue())
 	{
-		CurrentDisplayText = FText::FromString(TEXT("Invalid Option"));
+		CurrentStringValue = GetDefaultValueAsString();
+		TrySetDisplayTextFromStringValue(CurrentStringValue); //update display text
+		if (DataDynamicSetter)
+		{
+			DataDynamicSetter->SetValueFromString(CurrentStringValue); //update game user settings
+			NotifyListDataModified(this, EOptionsListDataModifyReason::ResetToDefault);
+			return true;
+		}
 	}
 	
+	return false;
 }
 
 bool UListDataObject_String::TrySetDisplayTextFromStringValue(const FString& InStringValue)

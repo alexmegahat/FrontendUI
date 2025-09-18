@@ -22,12 +22,24 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName = "On List Entry Widget Hovered"))
 	void BP_OnListEntryWidgetHovered(bool bWasHovered, bool bIsEntryWidgetStillSelected);
 	void NativeOnListEntryWidgetHovered(bool bWasHovered);
-
+	
 protected:
+	//The child widget bp should override this for gamepad interaction to function properly.
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Get Widget to focus for Gamepad"))
+	UWidget* BP_GetWidgetToFocusForGamepad() const;
+	
+	
 	//~Begin IUserObjectListEntry Interface
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+
+	//gets called when this entry widget is released, and when we switch to another Tab (then all the entry widgets will be released)
+	virtual void NativeOnEntryReleased() override;
 	//~End IUserObjectListEntry Interface
 
+	//~Begin UUserWidget Interface
+	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
+	//~End UUserWidget Interface
+	
 	//The child class should override this function to handle the initialization needed. Super call is expected in the child class.
 	virtual void OnOwningListDataObjectSet(UListDataObject_Base* InOwningListDataObject);
 

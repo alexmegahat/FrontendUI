@@ -22,7 +22,7 @@ FString FOptionsDataInteractionHelper::GetValueAsString() const
 	return OutStringValue;
 }
 
-void FOptionsDataInteractionHelper::SetValueAsString(const FString& InStringValue)
+void FOptionsDataInteractionHelper::SetValueFromString(const FString& InStringValue)
 {
 	PropertyPathHelpers::SetPropertyValueFromString(
 		CachedWeakGameUserSettings.Get(),

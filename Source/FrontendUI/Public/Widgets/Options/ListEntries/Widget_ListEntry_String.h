@@ -32,6 +32,8 @@ protected:
 private:
 	void OnPreviousOptionButtonClicked();
 	void OnNextOptionButtonClicked();
+
+	void OnRotatorValueChanged(int32 Value, bool bUserInitiated);
 	
 	//***** Bound Widgets ******//
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = true))

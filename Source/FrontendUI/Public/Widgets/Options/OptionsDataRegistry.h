@@ -27,6 +27,8 @@ public:
 	TArray<UListDataObject_Base*> GetListSourceItemsByTabID(const FName& InSelectedTabID) const;
 	
 private:
+	void FindChildListDataRecursively(UListDataObject_Base* InParentData, TArray<UListDataObject_Base*>& OutFoundChildList) const;
+	
 	//Func for Gameplay Tab
 	void InitGameplayCollectionTab();
 	

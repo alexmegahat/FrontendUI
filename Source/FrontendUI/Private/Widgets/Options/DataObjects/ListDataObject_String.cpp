@@ -143,6 +143,23 @@ bool UListDataObject_String::TryResetBackToDefaultValue()
 	return false;
 }
 
+bool UListDataObject_String::CanSetToForcedStringValue(const FString& InForcedValue) const
+{
+	return CurrentStringValue != InForcedValue;
+}
+
+void UListDataObject_String::OnSetToForcedStringValue(const FString& InForcedValue)
+{
+	CurrentStringValue = InForcedValue;
+	TrySetDisplayTextFromStringValue(CurrentStringValue);
+
+	if (DataDynamicSetter)
+	{
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
+		NotifyListDataModified(this, EOptionsListDataModifyReason::DependencyModified);
+	}
+}
+
 bool UListDataObject_String::TrySetDisplayTextFromStringValue(const FString& InStringValue)
 {
 	//IndexOfByKey will work for FString but will not work for FText because FText doesnt overload the == operator
@@ -204,3 +221,39 @@ void UListDataObject_StringBool::TryInitBoolValues()
 }
 
 //************** UListDataObject_StringBool **************//
+
+//************** UListDataObject_StringInteger **************//
+
+void UListDataObject_StringInteger::AddIntegerOption(const int32& InIntegerValue, const FText& InDisplayText)
+{
+	AddDynamicOption(LexToString(InIntegerValue), InDisplayText);
+}
+
+void UListDataObject_StringInteger::OnDataObjectInitialized()
+{
+	Super::OnDataObjectInitialized();
+	if (!TrySetDisplayTextFromStringValue(CurrentStringValue)) //if couldn't find the corresponding display text from the string value
+	{
+		CurrentDisplayText = FText::FromString(TEXT("Custom")); //TODO: needs to be language-specific
+	}
+}
+
+void UListDataObject_StringInteger::OnEditDependencyDataModified(UListDataObject_Base* ModifiedDependencyData,
+	EOptionsListDataModifyReason ModifyReason)
+{
+	if (DataDynamicGetter)
+	{
+		if (CurrentStringValue == DataDynamicGetter->GetValueAsString()) return; //avoid infinite loop
+		
+		CurrentStringValue = DataDynamicGetter->GetValueAsString();
+		if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
+		{
+			CurrentDisplayText = FText::FromString(TEXT("Custom")); //TODO: needs to be language-specific
+		}
+		NotifyListDataModified(this, EOptionsListDataModifyReason::DependencyModified);
+	}
+	
+	Super::OnEditDependencyDataModified(ModifiedDependencyData, ModifyReason);
+}
+
+//************** UListDataObject_StringInteger **************//

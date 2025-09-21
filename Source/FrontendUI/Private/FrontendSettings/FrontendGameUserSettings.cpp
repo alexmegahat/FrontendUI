@@ -7,7 +7,8 @@ UFrontendGameUserSettings::UFrontendGameUserSettings()
 	: OverallVolume(1.f),
 	MusicVolume(1.f),
 	SoundFXVolume(1.f),
-	bAllowBackgroundAudio(false)
+	bAllowBackgroundAudio(false),
+    bUseHDRAudio(false)
 {
 	
 }
@@ -61,7 +62,29 @@ void UFrontendGameUserSettings::SetAllowBackgroundAudio(bool bIsAllowed)
 
 	//The actual logic for controlling the audio goes here.
 	//.....
-	
-	ApplyNonResolutionSettings();
-	SaveSettings();
+}
+
+void UFrontendGameUserSettings::SetUseHDRAudio(bool bIsAllowed)
+{
+	bUseHDRAudio = bIsAllowed;
+
+	//The actual logic for controlling the audio goes here.
+	//.....
+}
+
+float UFrontendGameUserSettings::GetCurrentDisplayGamma() const
+{
+	if (GEngine)
+	{
+		return GEngine->GetDisplayGamma();
+	}
+	return 0.f;
+}
+
+void UFrontendGameUserSettings::SetCurrentDisplayGamma(float InNewGamma)
+{
+	if (GEngine)
+	{
+		GEngine->DisplayGamma = InNewGamma;
+	}
 }

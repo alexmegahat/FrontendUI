@@ -15,7 +15,7 @@ class FRONTENDUI_API UFrontendGameUserSettings : public UGameUserSettings
 	GENERATED_BODY()
 public:
 
-	UFrontendGameUserSettings();
+	UFrontendGameUserSettings(); //default var values are in this constructor
 	
 	static UFrontendGameUserSettings* Get();
 
@@ -54,9 +54,25 @@ public:
 
 	UFUNCTION()
 	void SetAllowBackgroundAudio(bool bIsAllowed);
+
+	UFUNCTION()
+	bool GetUseHDRAudio() const {return bUseHDRAudio;}
+
+	UFUNCTION()
+	void SetUseHDRAudio(bool bIsAllowed);
 	//******* Audio Collection Tab *******//
 
+	//******* Video Collection Tab *******//
+	UFUNCTION()
+	float GetCurrentDisplayGamma() const;
+
+	UFUNCTION()
+	void SetCurrentDisplayGamma(float InNewGamma);
+	//******* Video Collection Tab *******//
+
 private:
+	//default var values are in constructor
+	
 	//******* Gameplay Collection Tab *******//
 	UPROPERTY(Config)
 	FString CurrentGameDifficulty;
@@ -73,6 +89,9 @@ private:
 	float SoundFXVolume; //default value = 1
 
 	UPROPERTY(Config)
-	bool bAllowBackgroundAudio;
+	bool bAllowBackgroundAudio; //default false
+
+	UPROPERTY(Config)
+	bool bUseHDRAudio; //default false
 	//******* Audio Collection Tab *******//
 };

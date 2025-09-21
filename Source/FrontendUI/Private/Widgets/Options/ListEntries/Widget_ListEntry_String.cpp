@@ -41,6 +41,14 @@ void UWidget_ListEntry_String::OnOwningListDataObjectModified(UListDataObject_Ba
 	}
 }
 
+void UWidget_ListEntry_String::OnToggleEditableState(bool bIsEditable)
+{
+	Super::OnToggleEditableState(bIsEditable);
+	CommonButton_PreviousOption->SetIsEnabled(bIsEditable); //for button false means doesn't respond to mouse click and gamepad interaction 
+	CommonRotator_AvailableOptions->SetIsEnabled(bIsEditable);
+	CommonButton_NextOption->SetIsEnabled(bIsEditable);
+}
+
 void UWidget_ListEntry_String::OnPreviousOptionButtonClicked()
 {
 	//Debug::Print("UWidget_ListEntry_String::OnPreviousOptionButtonClicked");

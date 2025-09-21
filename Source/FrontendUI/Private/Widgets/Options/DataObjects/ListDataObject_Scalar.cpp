@@ -82,3 +82,10 @@ bool UListDataObject_Scalar::TryResetBackToDefaultValue()
 	}
 	return false;
 }
+
+void UListDataObject_Scalar::OnEditDependencyDataModified(UListDataObject_Base* ModifiedDependencyData,
+	EOptionsListDataModifyReason ModifyReason)
+{
+	NotifyListDataModified(this, EOptionsListDataModifyReason::DependencyModified);
+	Super::OnEditDependencyDataModified(ModifiedDependencyData, ModifyReason);
+}

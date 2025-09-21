@@ -60,11 +60,38 @@ void UWidget_ListEntry_Base::OnOwningListDataObjectSet(UListDataObject_Base* InO
 	{
 		InOwningListDataObject->OnListDataModified.AddUObject(this, &ThisClass::OnOwningListDataObjectModified);
 	}
+
+	if (!InOwningListDataObject->OnDependencyDataModified.IsBoundToObject(this))
+	{
+		InOwningListDataObject->OnDependencyDataModified.AddUObject(this, &ThisClass::OnOwningDependencyDataObjectModified);
+	}
+	
+	//set editable state of the entry widget on startup
+	OnToggleEditableState(InOwningListDataObject->IsDataCurrentlyEditable());
+
+	CachedOwningListDataObject = InOwningListDataObject;
 }
 
 void UWidget_ListEntry_Base::OnOwningListDataObjectModified(UListDataObject_Base* OwningModifiedData,
 	EOptionsListDataModifyReason ModifyReason)
 {
+}
+
+void UWidget_ListEntry_Base::OnOwningDependencyDataObjectModified(UListDataObject_Base* OwningModifiedDependencyData,
+	EOptionsListDataModifyReason ModifyReason)
+{
+	if (CachedOwningListDataObject)
+	{
+		OnToggleEditableState(CachedOwningListDataObject->IsDataCurrentlyEditable());
+	}
+}
+
+void UWidget_ListEntry_Base::OnToggleEditableState(bool bIsEditable)
+{
+	if (CommonText_SettingDisplayName)
+	{
+		CommonText_SettingDisplayName->SetIsEnabled(bIsEditable); //sets to use much darker color in case of false
+	}
 }
 
 void UWidget_ListEntry_Base::SelectThisEntryWidget()

@@ -27,6 +27,9 @@ protected:
 	
 	virtual bool CanResetBackToDefaultValue() const override;
 	virtual bool TryResetBackToDefaultValue() override;
+
+	virtual bool CanSetToForcedStringValue(const FString& InForcedValue) const override;
+	virtual void OnSetToForcedStringValue(const FString& InForcedValue) override;
 	//~End UListDataObject_Base Interface
 
 	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);
@@ -44,7 +47,7 @@ public:
 
 };
 
-//Child StringBool class
+//Child StringBool class - works for any boolean values
 UCLASS()
 class FRONTENDUI_API UListDataObject_StringBool : public UListDataObject_String
 {
@@ -56,6 +59,8 @@ public:
 	void SetTrueAsDefaultValue();
 	void SetFalseAsDefaultValue();
 
+	bool GetCurrentValueAsBool() const {return CurrentStringValue == TrueString; };
+
 protected:
 	//~Begin UListDataObject_String Interface
 	virtual void OnDataObjectInitialized() override;
@@ -66,3 +71,56 @@ private:
 	const FString TrueString = TEXT("true");
 	const FString FalseString = TEXT("false");
 };
+
+//
+
+//Child StringEnum class - works for any enum values (use case: Window Mode)
+UCLASS()
+class FRONTENDUI_API UListDataObject_StringEnum : public UListDataObject_String
+{
+	GENERATED_BODY()
+public:
+	template<typename EnumType>
+	void AddEnumOption(EnumType InEnumOption, const FText& InDisplayText)
+	{
+		const UEnum* StaticEnumOption = StaticEnum<EnumType>();
+		//use func to convert enum to string
+		const FString ConvertedEnumString = StaticEnumOption->GetNameStringByValue(InEnumOption);
+
+		AddDynamicOption(ConvertedEnumString, InDisplayText);
+	}
+
+	template<typename EnumType>
+	EnumType GetCurrentValueAsEnum() const
+	{
+		const UEnum* StaticEnumOption = StaticEnum<EnumType>();
+		//use func to convert string to enum
+		return (EnumType)StaticEnumOption->GetValueByNameString(CurrentStringValue); //c-style cast
+	}
+
+	template<typename EnumType>
+	void SetDefaultValueFromEnumOption(EnumType InEnumOption)
+	{
+		const UEnum* StaticEnumOption = StaticEnum<EnumType>();
+		//use func to convert enum to string
+		const FString ConvertedEnumString = StaticEnumOption->GetNameStringByValue(InEnumOption);
+
+		SetDefaultValueFromString(ConvertedEnumString);
+	}
+};
+
+//Child StringInteger class - for settings like game scalability (graphics)
+UCLASS()
+class FRONTENDUI_API UListDataObject_StringInteger : public UListDataObject_String
+{
+	GENERATED_BODY()
+public:
+	void AddIntegerOption(const int32& InIntegerValue, const FText& InDisplayText);
+	
+protected:
+	//~Begin UListDataObject_String Interface
+	virtual void OnDataObjectInitialized() override;
+	virtual void OnEditDependencyDataModified(UListDataObject_Base* ModifiedDependencyData, EOptionsListDataModifyReason ModifyReason) override;
+	//~End UListDataObject_String Interface
+};
+

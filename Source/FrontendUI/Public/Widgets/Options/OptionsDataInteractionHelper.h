@@ -6,6 +6,7 @@
 #include "PropertyPathHelpers.h"
 
 class UFrontendGameUserSettings;
+class UKismetInternationalizationLibrary;
 
 /**
  * Helper class for interacting with Game User Settings

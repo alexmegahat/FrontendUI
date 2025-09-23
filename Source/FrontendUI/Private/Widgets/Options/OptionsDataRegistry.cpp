@@ -12,9 +12,11 @@
 #include "Widgets/Options/DataObjects/ListDataObject_Scalar.h"
 #include "Widgets/Options/DataObjects/ListDataObject_StringResolution.h"
 #include "FrontendGameplayTags.h"
+#include "Kismet/KismetInternationalizationLibrary.h"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FOptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(UFrontendGameUserSettings, SetterOrGetterFuncName))
+
 
 void UOptionsDataRegistry::InitOptionsDataRegistry(ULocalPlayer* InOwningLocalPlayer)
 {
@@ -35,6 +37,8 @@ void UOptionsDataRegistry::InitOptionsDataRegistry(ULocalPlayer* InOwningLocalPl
 	/*
 	 *TODO:
 	 * 1) Figure out a way to make localization (Look at these settings, then ListDataObject_StringInteger ("Custom"), then at individual buttons names in the ue)
+	 * 1) #include "Internationalization/StringTableRegistry.h"
+	 * 
 	 * 2) Use Enhanced Input
 	 * 
 	 */
@@ -125,6 +129,32 @@ void UOptionsDataRegistry::InitGameplayCollectionTab()
 
 		//add setting to the list
 		GameplayTabCollection->AddChildListData(GameDifficulty);
+	}
+
+	//******** Language ********//
+	{
+		//init
+		UListDataObject_String* Language = NewObject<UListDataObject_String>();
+		Language->SetDataID(FName("Language"));
+		Language->SetDataDisplayName(FText::FromString(TEXT("Language")));
+		Language->SetDescriptionRichText(FText::FromString(TEXT("Choose between different languages for the game's UI.")));
+
+		//add all the possible values
+		for (const FString& AvailableLanguage : UKismetInternationalizationLibrary::GetLocalizedCultures(true, true))
+		{
+			Language->AddDynamicOption(AvailableLanguage, FText::FromString(UKismetInternationalizationLibrary::GetCultureDisplayName(AvailableLanguage)));
+		}
+
+		//default value
+		Language->SetDefaultValueFromString(UFrontendGameUserSettings::Get()->GetCurrentLanguage());
+
+		//game user settings specifics
+		Language->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentLanguage));
+		Language->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentLanguage));
+		Language->SetShouldApplySettingsImmediately(true);
+
+		//add setting to the list
+		GameplayTabCollection->AddChildListData(Language);
 	}
 	
 	//******** Test Item ********//
@@ -300,10 +330,11 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 
 		//Window Mode
 		{
+			
 			UListDataObject_StringEnum* WindowMode = NewObject<UListDataObject_StringEnum>();
 			WindowMode->SetDataID(FName("WindowMode"));
 			WindowMode->SetDataDisplayName(FText::FromString("Window Mode"));
-			WindowMode->SetDescriptionRichText(FText::FromString(TEXT("Change between Fullscreen, Borderless Windowed or Windowed modes.")));
+			WindowMode->SetDescriptionRichText(FText::FromString("WindowModeDesc"));
 
 			WindowMode->AddEnumOption(EWindowMode::Fullscreen, FText::FromString(TEXT("Fullscreen")));
 			WindowMode->AddEnumOption(EWindowMode::WindowedFullscreen, FText::FromString(TEXT("Borderless Windowed")));

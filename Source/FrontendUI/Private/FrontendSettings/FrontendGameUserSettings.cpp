@@ -3,6 +3,9 @@
 
 #include "FrontendSettings/FrontendGameUserSettings.h"
 
+#include "Internationalization/Culture.h"
+#include "Kismet/KismetInternationalizationLibrary.h"
+
 UFrontendGameUserSettings::UFrontendGameUserSettings()
 	: OverallVolume(1.f),
 	MusicVolume(1.f),
@@ -21,6 +24,16 @@ UFrontendGameUserSettings* UFrontendGameUserSettings::Get()
 	}
 
 	return nullptr;
+}
+
+FString UFrontendGameUserSettings::GetCurrentLanguage() const
+{
+	return FInternationalization::Get().GetCurrentLanguage()->GetName();
+}
+
+void UFrontendGameUserSettings::SetCurrentLanguage(const FString& InNewLanguage)
+{
+	UKismetInternationalizationLibrary::SetCurrentCulture(InNewLanguage, true);
 }
 
 void UFrontendGameUserSettings::SetOverallVolume(float InVolume)

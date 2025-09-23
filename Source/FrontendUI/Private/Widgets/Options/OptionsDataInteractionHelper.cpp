@@ -3,6 +3,7 @@
 
 #include "Widgets/Options/OptionsDataInteractionHelper.h"
 #include "FrontendSettings/FrontendGameUserSettings.h"
+#include "Kismet/KismetInternationalizationLibrary.h"
 
 FOptionsDataInteractionHelper::FOptionsDataInteractionHelper(const FString& InSetterOrGetterFuncPath)
 	: CachedDynamicFunctionPath(InSetterOrGetterFuncPath) 

@@ -26,6 +26,13 @@ public:
 
 	UFUNCTION()
 	void SetCurrentGameDifficulty(const FString& InNewGameDifficulty) {CurrentGameDifficulty = InNewGameDifficulty; }
+
+	//Language
+	UFUNCTION()
+	FString GetCurrentLanguage() const;
+
+	UFUNCTION()
+	void SetCurrentLanguage(const FString& InNewLanguage);
 	
 	//....
 	//******* Gameplay Collection Tab *******//

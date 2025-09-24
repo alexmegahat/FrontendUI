@@ -39,7 +39,7 @@ private:
 	void InitVideoCollectionTab();
 	
 	//Func for Controls Tab
-	void InitControlCollectionTab();
+	void InitControlCollectionTab(ULocalPlayer* InOwningLocalPlayer);
 
 	UPROPERTY(Transient)
 	TArray<UListDataObject_Collection*> RegisteredOptionsTabCollections;

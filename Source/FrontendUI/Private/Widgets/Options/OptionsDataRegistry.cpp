@@ -14,6 +14,11 @@
 #include "FrontendGameplayTags.h"
 #include "Kismet/KismetInternationalizationLibrary.h"
 
+#include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
+#include "Widgets/Options/DataObjects/ListDataObject_KeyRemap.h"
+
+
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FOptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(UFrontendGameUserSettings, SetterOrGetterFuncName))
 
@@ -46,7 +51,7 @@ void UOptionsDataRegistry::InitOptionsDataRegistry(ULocalPlayer* InOwningLocalPl
 	InitGameplayCollectionTab();
 	InitAudioCollectionTab();
 	InitVideoCollectionTab();
-	InitControlCollectionTab();
+	InitControlCollectionTab(InOwningLocalPlayer);
 }
 
 TArray<UListDataObject_Base*> UOptionsDataRegistry::GetListSourceItemsByTabID(const FName& InSelectedTabID) const
@@ -780,11 +785,123 @@ void UOptionsDataRegistry::InitVideoCollectionTab()
 	RegisteredOptionsTabCollections.Add(VideoTabCollection);
 }
 
-void UOptionsDataRegistry::InitControlCollectionTab()
+void UOptionsDataRegistry::InitControlCollectionTab(ULocalPlayer* InOwningLocalPlayer)
 {
 	UListDataObject_Collection* ControlsTabCollection = NewObject<UListDataObject_Collection>();
 	ControlsTabCollection->SetDataID(FName("ControlsTabCollection"));
 	ControlsTabCollection->SetDataDisplayName(FText::FromString("Controls"));
 
+	UEnhancedInputLocalPlayerSubsystem* EISubsystem = InOwningLocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+
+	check(EISubsystem);
+
+	UEnhancedInputUserSettings* EIUserSettings = EISubsystem->GetUserSettings();
+
+	check(EIUserSettings);
+	
+	//Keyboard & Mouse Category
+	{
+		UListDataObject_Collection* KeyboardMouseCategoryCollection = NewObject<UListDataObject_Collection>();
+		KeyboardMouseCategoryCollection->SetDataID(FName("KeyboardMouseCategoryCollection"));
+		KeyboardMouseCategoryCollection->SetDataDisplayName(FText::FromString("Keyboard & Mouse")); //TODO: localization
+
+		ControlsTabCollection->AddChildListData(KeyboardMouseCategoryCollection);
+
+		//Keyboard & Mouse Inputs
+		{
+			//Query options for filtering only Keyboard and Mouse keys
+			FPlayerMappableKeyQueryOptions KeyboardMouseOnly;
+			KeyboardMouseOnly.KeyToMatch = EKeys::S;
+			KeyboardMouseOnly.bMatchBasicKeyTypes = true;
+
+			
+			//From the key profile we can retrieve all the mappable keys
+			//EIUserSettings->GetAllSavedKeyProfiles()
+			for (const TPair<FString, TObjectPtr<UEnhancedPlayerMappableKeyProfile>>& ProfilePair : EIUserSettings->GetAllAvailableKeyProfiles())
+			{
+				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+
+				check(MappableKeyProfile);
+
+				//here FName is the ID that we assigned in each input action,
+				//and FKeyMappingRow is all the keys mapped to this input action.
+				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+				{
+					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+					{
+						/*Debug::Print(
+							TEXT("Mapping ID:") + KeyMapping.GetMappingName().ToString() +
+							TEXT("Display Name:") + KeyMapping.GetDisplayName().ToString() +
+							TEXT("Bound Key:") + KeyMapping.GetCurrentKey().GetDisplayName().ToString()
+							);*/
+						
+						//if key is keyboard or mouse
+						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, KeyboardMouseOnly))
+						{
+							UListDataObject_KeyRemap* KeyRemapDataObject = NewObject<UListDataObject_KeyRemap>();
+							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::MouseAndKeyboard, KeyMapping);
+
+							KeyboardMouseCategoryCollection->AddChildListData(KeyRemapDataObject);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//Gamepad Category
+	{
+		UListDataObject_Collection* GamepadCategoryCollection = NewObject<UListDataObject_Collection>();
+		GamepadCategoryCollection->SetDataID(FName("GamepadCategoryCollection"));
+		GamepadCategoryCollection->SetDataDisplayName(FText::FromString("Gamepad")); //TODO: localization
+
+		ControlsTabCollection->AddChildListData(GamepadCategoryCollection);
+
+		//Query options for filtering only Gamepad keys
+		FPlayerMappableKeyQueryOptions GamepadOnly;
+		GamepadOnly.KeyToMatch = EKeys::Gamepad_FaceButton_Bottom;
+		GamepadOnly.bMatchBasicKeyTypes = true;
+
+		//Gamepad Inputs
+		{
+			//From the key profile we can retrieve all the mappable keys
+			//EIUserSettings->GetAllSavedKeyProfiles()
+			for (const TPair<FString, TObjectPtr<UEnhancedPlayerMappableKeyProfile>>& ProfilePair : EIUserSettings->GetAllAvailableKeyProfiles())
+			{
+				UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+
+				check(MappableKeyProfile);
+
+				//here FName is the ID that we assigned in each input action,
+				//and FKeyMappingRow is all the keys mapped to this input action.
+				for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+				{
+					for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+					{
+						/*Debug::Print(
+							TEXT("Mapping ID:") + KeyMapping.GetMappingName().ToString() +
+							TEXT("Display Name:") + KeyMapping.GetDisplayName().ToString() +
+							TEXT("Bound Key:") + KeyMapping.GetCurrentKey().GetDisplayName().ToString()
+							);*/
+						
+						//if with gamepad
+						if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, GamepadOnly))
+						{
+							UListDataObject_KeyRemap* KeyRemapDataObject = NewObject<UListDataObject_KeyRemap>();
+							KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+							KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+							KeyRemapDataObject->InitKeyRemapData(EIUserSettings, MappableKeyProfile, ECommonInputType::Gamepad, KeyMapping);
+
+							GamepadCategoryCollection->AddChildListData(KeyRemapDataObject);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	
 	RegisteredOptionsTabCollections.Add(ControlsTabCollection);
 }

@@ -11,6 +11,16 @@ void UWidget_ListEntry_Base::NativeOnListEntryWidgetHovered(bool bWasHovered)
 {
 	//if list item is valid, then check if selected, otherwise return false
 	BP_OnListEntryWidgetHovered(bWasHovered, GetListItem() ? IsListItemSelected() : false);
+
+	//handling highlight state here
+	if (bWasHovered)
+	{
+		BP_OnToggleEntryWidgetHighlightState(true);
+	}
+	else
+	{
+		BP_OnToggleEntryWidgetHighlightState(GetListItem() && IsListItemSelected() ? true : false);
+	}
 }
 
 void UWidget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -18,9 +28,14 @@ void UWidget_ListEntry_Base::NativeOnListItemObjectSet(UObject* ListItemObject)
 	//Calling the parent version is crucial
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
-	//SetVisibility(ESlateVisibility::Visible);
-	
 	OnOwningListDataObjectSet(CastChecked<UListDataObject_Base>(ListItemObject));
+}
+
+void UWidget_ListEntry_Base::NativeOnItemSelectionChanged(bool bIsSelected)
+{
+	IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
+
+	BP_OnToggleEntryWidgetHighlightState(bIsSelected);
 }
 
 void UWidget_ListEntry_Base::NativeOnEntryReleased()

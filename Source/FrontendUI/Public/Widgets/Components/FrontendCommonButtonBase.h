@@ -7,6 +7,7 @@
 #include "FrontendCommonButtonBase.generated.h"
 
 class UCommonTextBlock;
+class UCommonLazyImage;
 
 /**
  * 
@@ -21,6 +22,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FText GetButtonDisplayText() const;
+
+	//Use this function to set CommonLazyImage_ButtonImage.
+	//The reason for using FSlateBrush to set the Common Lazy Image and not a Texture2D is
+	//because later when we retrieve the bound keys icon for Input Key Mapping (KeyRemap),
+	//FSlateBrush is the type that we're going to get
+	UFUNCTION(BlueprintCallable)
+	void SetButtonImage(const FSlateBrush& InBrush);
 	
 private:
 	//~Begin UUserWidget Interface//
@@ -35,8 +43,15 @@ private:
 	
 	//**** Bound Widgets ****//
 	
+	//BindWidgetOptional allows to make optional display text or image, because not every button in the UI needs to have either of these.
+
+	//Optional text
 	UPROPERTY(meta=(BindWidgetOptional))
 	UCommonTextBlock* CommonTextBlock_ButtonText;
+
+	//We need to use function SetButtonImage in bp to set the image.
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidgetOptional, AllowPrivateAccess="true"))
+	UCommonLazyImage* CommonLazyImage_ButtonImage;
 	
 	//**** Bound Widgets ****//
 

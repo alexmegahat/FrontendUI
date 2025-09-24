@@ -16,7 +16,7 @@ UConfirmScreenInfoObject* UConfirmScreenInfoObject::CreateOKScreen(const FText& 
 
 	FConfirmScreenButtonInfo OKButtonInfo;
 	OKButtonInfo.ConfirmScreenButtonType = EConfirmScreenButtonType::Closed;
-	OKButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Ok"));
+	OKButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Ok")); //TODO: localization
 
 	InfoObject->AvailableScreenButtons.Add(OKButtonInfo);
 
@@ -33,11 +33,11 @@ UConfirmScreenInfoObject* UConfirmScreenInfoObject::CreateYesNoScreen(const FTex
 
 	FConfirmScreenButtonInfo YesButtonInfo;
 	YesButtonInfo.ConfirmScreenButtonType = EConfirmScreenButtonType::Confirmed;
-	YesButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Yes"));
+	YesButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Yes")); //TODO: localization
 
 	FConfirmScreenButtonInfo NoButtonInfo;
 	NoButtonInfo.ConfirmScreenButtonType = EConfirmScreenButtonType::Canceled;
-	NoButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("No"));
+	NoButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("No")); //TODO: localization
 
 	InfoObject->AvailableScreenButtons.Add(YesButtonInfo);
 	InfoObject->AvailableScreenButtons.Add(NoButtonInfo);
@@ -55,11 +55,11 @@ UConfirmScreenInfoObject* UConfirmScreenInfoObject::CreateOkCancelScreen(const F
 
 	FConfirmScreenButtonInfo OkButtonInfo;
 	OkButtonInfo.ConfirmScreenButtonType = EConfirmScreenButtonType::Confirmed;
-	OkButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Ok"));
+	OkButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Ok")); //TODO: localization
 
 	FConfirmScreenButtonInfo CancelButtonInfo;
 	CancelButtonInfo.ConfirmScreenButtonType = EConfirmScreenButtonType::Canceled;
-	CancelButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Cancel"));
+	CancelButtonInfo.ButtonTextToDisplay = FText::FromString(TEXT("Cancel")); //TODO: localization
 
 	InfoObject->AvailableScreenButtons.Add(OkButtonInfo);
 	InfoObject->AvailableScreenButtons.Add(CancelButtonInfo);
@@ -94,6 +94,7 @@ void UWidget_ConfirmScreen::InitConfirmScreen(UConfirmScreenInfoObject* InConfir
 
 	for (const FConfirmScreenButtonInfo& AvailableButtonInfo : InConfirmScreenInfoObject->AvailableScreenButtons)
 	{
+		/*
 		FDataTableRowHandle InputActionRowHandle;
 		switch (AvailableButtonInfo.ConfirmScreenButtonType)
 		{
@@ -108,11 +109,11 @@ void UWidget_ConfirmScreen::InitConfirmScreen(UConfirmScreenInfoObject* InConfir
 			break;
 		default:
 			break;
-		}
+		}*/
 		
 		UFrontendCommonButtonBase* AddedButton = DynamicEntryBox_Buttons->CreateEntry<UFrontendCommonButtonBase>();
 		AddedButton->SetButtonText(AvailableButtonInfo.ButtonTextToDisplay);
-		AddedButton->SetTriggeringInputAction(InputActionRowHandle);
+		//AddedButton->SetTriggeringInputAction(InputActionRowHandle);
 		AddedButton->OnClicked().AddLambda(
 			[ClickedButtonCallback,AvailableButtonInfo,this]()
 			{
@@ -121,7 +122,10 @@ void UWidget_ConfirmScreen::InitConfirmScreen(UConfirmScreenInfoObject* InConfir
 			}
 		);
 	}
+}
 
+UWidget* UWidget_ConfirmScreen::NativeGetDesiredFocusTarget() const
+{
 	if (DynamicEntryBox_Buttons->GetNumEntries() != 0)
 	{
 		/*
@@ -129,4 +133,6 @@ void UWidget_ConfirmScreen::InitConfirmScreen(UConfirmScreenInfoObject* InConfir
 		 */
 		DynamicEntryBox_Buttons->GetAllEntries().Last()->SetFocus();
 	}
+	
+	return Super::NativeGetDesiredFocusTarget();
 }

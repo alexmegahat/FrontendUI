@@ -5,7 +5,7 @@
 
 AFrontendPlayerController* UWidget_ActivatableBase::GetOwningFrontendPlayerController()
 {
-	if (CachedOwningFrontendPC.IsValid())
+	if (!CachedOwningFrontendPC.IsValid())
 	{
 		CachedOwningFrontendPC = GetOwningPlayer<AFrontendPlayerController>();
 	}

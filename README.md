@@ -41,7 +41,7 @@ And also there should be more gameplay tags assigned in the project’s Gameplay
 
 <img width="759" height="620" alt="image" src="https://github.com/user-attachments/assets/803ca50e-7711-46ee-a400-21a9fcba174f" />
 
-2. If this is done correctly, then set up Project Settings like displayed:
+2. If this is done correctly, then set up Project Settings as displayed:
 
 <img width="2529" height="802" alt="image" src="https://github.com/user-attachments/assets/2c96147a-0ff5-4395-ba75-cd5ea1d97b1e" />
 

@@ -31,7 +31,7 @@ System contains:
 - System uses Common Activatable Widget, Widget Stacks, Common Text Block and more;
 - Custom Data Objects for List View Item generation.
 
-<strong>Plugin</strong> verion Setup:
+<strong>Plugin</strong> version Setup:
 
 1. There should be 2 new tabs in the Project Settings under the Game section:
 
